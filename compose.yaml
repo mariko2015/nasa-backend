@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      DS_URL: http://ds:8001
+      ML_URL: http://ml:8002
+    expose: ["8080"]
+    depends_on:
+      ds: { condition: service_healthy }
+      ml: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  ds:
+    build: ./ds
+    expose: ["8001"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/healthz', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  ml:
+    build: ./ml
+    expose: ["8002"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  frontend:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on:
+      backend: { condition: service_healthy }

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backend Integration Sandbox</title>
+<style>
+body{max-width:900px;margin:3rem auto;padding:0 1rem;background:#111827;color:#e5edf8;font:16px system-ui,sans-serif}
+textarea,pre{width:100%;box-sizing:border-box;background:#1f2937;color:#d1fae5;border:1px solid #475569;border-radius:8px;padding:1rem}
+textarea{min-height:150px;font:14px ui-monospace,monospace}
+button{margin:1rem 0;padding:.7rem 1rem;border:0;border-radius:7px;font-weight:700;background:#6ee7b7;cursor:pointer}
+.muted{color:#a6b5c9;line-height:1.5}
+</style>
+</head>
+<body>
+<h1>Backend Integration Sandbox</h1>
+<p class="muted">Frontend calls Go. Go calls DS, then forwards the DS response to ML. DS and ML are integration stubs; they do not calculate or predict.</p>
+<label for="input">Request body: { "input": ... }</label>
+<textarea id="input" spellcheck="false">{
+  "input": {
+    "integration_example": "replace with the team-agreed contract"
+  }
+}</textarea>
+<button id="run">Send through backend</button>
+<span id="status" class="muted">Ready</span>
+<h2>Response</h2>
+<pre id="output">No request sent yet.</pre>
+<script>
+const button=document.getElementById("run");
+button.addEventListener("click",async()=>{
+  const status=document.getElementById("status");
+  const output=document.getElementById("output");
+  button.disabled=true;
+  status.textContent="Sending...";
+  try {
+    const body=JSON.parse(document.getElementById("input").value);
+    const response=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await response.json();
+    output.textContent=JSON.stringify(data,null,2);
+    status.textContent=response.ok?"Complete":"Request failed";
+  } catch(error) {
+    output.textContent=error.message;
+    status.textContent="Invalid JSON or network error";
+  } finally {
+    button.disabled=false;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+.gocache/
+backend/backend.exe
+__pycache__/
+*.py[cod]
+.env
