@@ -4,6 +4,9 @@ services:
     environment:
       DS_URL: http://ds:8001
       ML_URL: http://ml:8002
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-20s}
+      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-10s}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     expose: ["8080"]
     depends_on:
       ds: { condition: service_healthy }

@@ -110,7 +110,15 @@ Content-Type: application/json
 
 `ds` dan `ml` berisi JSON response masing-masing service. Field di dalamnya ditentukan oleh tim DS dan ML; wrapper response di atas dimiliki backend.
 
-Backend memberi HTTP 400 jika request frontend tidak valid. Jika DS atau ML gagal, timeout, mengembalikan status non-2xx, atau bukan JSON valid, backend mengembalikan error ke frontend.
+Backend memberi HTTP 400 jika request frontend tidak valid dan HTTP 415 jika `Content-Type` bukan `application/json`. Body dibatasi 1 MiB dan harus berupa satu objek JSON dengan properti `input`. Jika DS atau ML gagal, timeout, mengembalikan status non-2xx, atau bukan JSON valid, backend mengembalikan error ke frontend.
+
+Setiap request memperoleh `X-Request-ID`; ID yang sama dikirim ke DS dan ML dan dicatat di log JSON backend. Backend juga melakukan graceful shutdown saat container dihentikan. Timeout downstream, waktu shutdown, dan tingkat log dapat diatur lewat environment:
+
+| Variable | Default | Kegunaan |
+| --- | --- | --- |
+| `REQUEST_TIMEOUT` | `20s` | Batas waktu gabungan pemanggilan DS dan ML |
+| `SHUTDOWN_TIMEOUT` | `10s` | Batas waktu menunggu request selesai saat shutdown |
+| `LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARN`, atau `ERROR` |
 
 ## Jaringan Docker
 
